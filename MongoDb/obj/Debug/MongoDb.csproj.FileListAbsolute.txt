@@ -14,3 +14,23 @@
 \\kclx.kneip.com\profiles\gumbarm\my documents\visual studio 2015\Projects\MongoDb\MongoDb\obj\Debug\MongoDb.exe
 \\kclx.kneip.com\profiles\gumbarm\my documents\visual studio 2015\Projects\MongoDb\MongoDb\obj\Debug\MongoDb.pdb
 \\kclx.kneip.com\profiles\gumbarm\my documents\visual studio 2015\Projects\MongoDb\MongoDb\obj\Debug\MongoDb.csprojResolveAssemblyReference.cache
+C:\Users\gumbarm\developments\MongoDb\MongoDb\bin\Debug\MongoDb.exe.config
+C:\Users\gumbarm\developments\MongoDb\MongoDb\bin\Debug\MongoDb.exe
+C:\Users\gumbarm\developments\MongoDb\MongoDb\bin\Debug\MongoDb.pdb
+C:\Users\gumbarm\developments\MongoDb\MongoDb\bin\Debug\DnsClient.dll
+C:\Users\gumbarm\developments\MongoDb\MongoDb\bin\Debug\MongoDB.Bson.dll
+C:\Users\gumbarm\developments\MongoDb\MongoDb\bin\Debug\MongoDB.Driver.Core.dll
+C:\Users\gumbarm\developments\MongoDb\MongoDb\bin\Debug\MongoDB.Driver.dll
+C:\Users\gumbarm\developments\MongoDb\MongoDb\bin\Debug\System.Buffers.dll
+C:\Users\gumbarm\developments\MongoDb\MongoDb\bin\Debug\System.Runtime.InteropServices.RuntimeInformation.dll
+C:\Users\gumbarm\developments\MongoDb\MongoDb\bin\Debug\DnsClient.xml
+C:\Users\gumbarm\developments\MongoDb\MongoDb\bin\Debug\MongoDB.Bson.xml
+C:\Users\gumbarm\developments\MongoDb\MongoDb\bin\Debug\MongoDB.Driver.xml
+C:\Users\gumbarm\developments\MongoDb\MongoDb\bin\Debug\MongoDB.Driver.Core.xml
+C:\Users\gumbarm\developments\MongoDb\MongoDb\obj\Debug\MongoDb.exe
+C:\Users\gumbarm\developments\MongoDb\MongoDb\obj\Debug\MongoDb.pdb
+C:\Users\gumbarm\developments\MongoDb\MongoDb\bin\Debug\MongoDb.exe.manifest
+C:\Users\gumbarm\developments\MongoDb\MongoDb\bin\Debug\MongoDb.application
+C:\Users\gumbarm\developments\MongoDb\MongoDb\obj\Debug\MongoDb.exe.manifest
+C:\Users\gumbarm\developments\MongoDb\MongoDb\obj\Debug\MongoDb.application
+C:\Users\gumbarm\developments\MongoDb\MongoDb\obj\Debug\MongoDb.csprojResolveAssemblyReference.cache
