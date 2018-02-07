@@ -7,6 +7,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using System.IO;
 using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 
 namespace MongoDb
 {
@@ -20,6 +21,7 @@ namespace MongoDb
         public string user { get; set; }
         public string date { get; set; }
         public string time { get; set; }
+        public DateTime date_time { get; set; }
         public string path { get; set; }
         public string request { get; set; }
         public string status { get; set; }
@@ -27,6 +29,7 @@ namespace MongoDb
         public string referrer { get; set; }
         public string userAgent { get; set; }
         public int line { get; set; }
+        public string process { get; set; }
 
         public static async void Start()
         {
@@ -105,6 +108,7 @@ namespace MongoDb
                 }
                 file.Close();
             }
+
             //for (int i = 0; i < 1000; i++)
             //{
             //   await collection.InsertOneAsync(new MongoLog { name = "Jack & Michel" });
@@ -184,6 +188,7 @@ namespace MongoDb
             static void Main(string[] args)
             {
                 //MongoLog.Start();
+                MongoLog.StartFlLog();
                 //MongoLog.Look();
                 //MongoLog.LookUp();
                 //MongoLog.LookUpJson();
@@ -193,7 +198,8 @@ namespace MongoDb
                 //MongoLog.BsonDocumentFetchOne();
                 //MongoLog.BsonDocumentFetchLinq();
                 //MongoLog.BsonDocumentFetchDictionnary();
-                MongoLog.BsonDocumentFetchDictionnaryWorkflow("GB00BF5DR632");
+                //MongoLog.BsonDocumentFetchDictionnaryWorkflow("GB00BF5DR632");
+                //MongoLog.BsonDocumentFetchDictionnaryStep("1909");
                 Console.WriteLine("Hello");
                 Console.ReadLine();
             }
@@ -240,7 +246,7 @@ namespace MongoDb
             var client = new MongoClient(@"mongodb://admin:admin@89.159.180.74:27017/test?ssl=false&authSource=admin");
             var database = client.GetDatabase("famille");
             var collection = database.GetCollection<Papa>("gumbar");
-            await collection.Find(papa => papa.name == "Mustafa" && papa.Filles.Any( fille => fille.name == "Ela"))
+            await collection.Find(papa => papa.name == "Mustafa" && papa.Filles.Any(fille => fille.name == "Ela"))
                 .ForEachAsync(papa => Console.WriteLine(papa.name + " " + papa.Filles.First().name + " " + papa.Filles.Last().name));
         }
 
@@ -258,6 +264,15 @@ namespace MongoDb
             var database = client.GetDatabase("log");
             var collection = database.GetCollection<Workflow>("workflow");
             await collection.Find(papa => papa.source == "Co-React" && (papa.payload["filename"].Contains(search) || papa.payload["entity"].Contains(search) || papa.payload["Ville"].Contains(search)))
+                .ForEachAsync(papa => Console.WriteLine(papa.source + " " + papa.payload["entity"] + " " + papa.payload["filename"]));
+        }
+
+        public static async void BsonDocumentFetchDictionnaryStep(string search)
+        {
+            var client = new MongoClient(@"mongodb://admin:admin@89.159.180.74:27017/test?ssl=false&authSource=admin");
+            var database = client.GetDatabase("log");
+            var collection = database.GetCollection<Workflow>("workflow");
+            await collection.Find(papa => papa.source == "Co-React" && (papa.steps.Any(s => s.Label.Contains(search))))
                 .ForEachAsync(papa => Console.WriteLine(papa.source + " " + papa.payload["entity"] + " " + papa.payload["filename"]));
         }
 
@@ -300,7 +315,7 @@ namespace MongoDb
             public string name { get; set; }
             public List<Fille> Filles;
             public Dictionary<string, string> adresse;
-       
+
             public Papa()
             {
                 //this.Filles = new List<Fille>();
@@ -329,9 +344,119 @@ namespace MongoDb
         {
             public ObjectId Id { get; set; }
             public string source { get; set; }
+            public List<Step> steps { get; set; }
+
 
             public Dictionary<string, string> payload;
         }
 
+        [BsonIgnoreExtraElements]
+        public class Step
+        {
+            [BsonElement("name")]
+            [JsonProperty("name")]
+            public string Name { get; set; }
+            [BsonElement("label")]
+            [JsonProperty("label")]
+            public string Label { get; set; }
+            [BsonElement("category")]
+            [JsonProperty("category")]
+            public string Category { get; set; }
+            [BsonElement("sub_category")]
+            [JsonProperty("sub_category")]
+            public string SubCategory { get; set; }
+            [BsonElement("status")]
+            [JsonProperty("status")]
+            public string Status { get; set; }
+            //[BsonElement("events")]
+            //[BsonRepresentation(BsonType.String)]
+            //public List<StepEvent> Events { get; set; }
+            public Step(string name, string label, string category, string subCategory)
+            {
+                this.Name = name;
+                this.Label = label;
+                this.Category = category;
+                this.SubCategory = subCategory;
+                this.SubCategory = subCategory;
+                this.Status = "primary";
+            }
+        }
+
+        public static async void StartFlLog()
+        {
+            /*var client = new MongoClient(@"mongodb://admin:admin@cluster0-shard-00-00-hudu2.mongodb.net:27017,cluster0-shard-00-01-hudu2.mongodb.net:27017,cluster0-shard-00-02-hudu2.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin");*/
+            var client = new MongoClient(@"mongodb://admin:admin@89.159.180.74:27017/test?ssl=false&authSource=admin");
+            var database = client.GetDatabase("log");
+            var collection = database.GetCollection<MongoLog>("log");
+            var timeOne = DateTime.Now.ToString();
+
+            //var filePath = @"C:\Users\gumbarm\Desktop\LogFiles_2018-01-19 11_38_55\BusinessRuleLibrary.log";
+            var targetDirectory = @"C:\Users\gumbarm\Desktop\LogFiles_2018-01-23 05_30_40\SYS-5969\FundLookWrk201707.log";
+            string[] fileEntries = Directory.GetFiles(targetDirectory);
+            foreach (string filePath in fileEntries)
+            {
+                //var filePath = @"C:\Users\gumbarm\Desktop\LogFiles_2018-01-22 05_30_39\Dissemination.log20180120";
+                Console.WriteLine(filePath);
+                int counter = 1;
+                string line;
+
+                // Read the file and display it line by line.  
+                System.IO.StreamReader file = new System.IO.StreamReader(filePath);
+                DateTime dateTime;
+                DateTime previousDate = DateTime.Parse("31/07/2017 00:00:01");
+                string[] words;
+                string server;
+                string process;
+                string logStatus = "";
+
+                while ((line = file.ReadLine()) != null)
+                {
+                    try
+                    {
+                        dateTime = DateTime.Parse("2017-07-" + line.Substring(4, 12));
+                        words = line.Split(default(string[]), StringSplitOptions.RemoveEmptyEntries);
+                        server = words[3];
+                        process = words[4].Substring(words[4].IndexOf("[") + 1, (words[4].IndexOf("]") - words[4].IndexOf("[")) - 1);
+
+                        previousDate = dateTime;
+                        var lower = line.ToLower();
+                        if (lower.Contains("exception") || lower.Contains("error") || lower.Contains("fatal"))
+                            logStatus = "danger";
+                        else if (lower.Contains("info"))
+                            logStatus = "info";
+                        else if (lower.Contains("warning"))
+                            logStatus = "warning";
+                        else if (lower.Contains("success"))
+                            logStatus = "success";
+                        else logStatus = "";
+
+                        await collection.InsertOneAsync(new MongoLog
+                        {
+                            name = "fundlook",
+                            host = server,
+                            logname = Path.GetFileName(filePath),
+                            date = dateTime.ToString().Split(default(string[]), StringSplitOptions.RemoveEmptyEntries)[0].Replace("/", "-"),
+                            time = dateTime.ToString().Split(default(string[]), StringSplitOptions.RemoveEmptyEntries)[1],
+                            date_time = dateTime,
+                            line = counter,
+                            data = line,
+                            status = logStatus,
+                            process =process
+                        });
+                    }
+                    catch (Exception)
+                    {
+                        //Console.WriteLine("Error");
+                        dateTime = previousDate;
+                        counter++;
+
+                    }
+                    counter++;
+                }
+                file.Close();
+            }
+
+
+        }
     }
 }
