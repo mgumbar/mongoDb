@@ -8,9 +8,106 @@ using MongoDB.Driver;
 using System.IO;
 using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
+using System.Xml;
+using System.Net;
+using System.Net.Http;
+using Newtonsoft.Json.Linq;
 
 namespace MongoDb
 {
+    [BsonIgnoreExtraElements]
+    public class CoreactAuditLog
+    {
+        [BsonRepresentation(BsonType.ObjectId)]
+        public ObjectId Id { get; set; }
+        [BsonElement("log_id")]
+        [JsonProperty("log_id")]
+        public int LogId { get; set; }
+        [BsonElement("log_typ")]
+        [JsonProperty("log_typ")]
+        public string LogTyp { get; set; }
+        [BsonElement("cat")]
+        [JsonProperty("cat")]
+        public string Cat { get; set; }
+        [BsonElement("user_name")]
+        [JsonProperty("user_name")]
+        public string UserName { get; set; }
+        [BsonElement("user_id")]
+        [JsonProperty("user_id")]
+        public int UserId { get; set; }
+        [BsonElement("dte")]
+        [JsonProperty("dte")]
+        public DateTime Dte { get; set; }
+        [BsonElement("det")]
+        [JsonProperty("det")]
+        public string Det { get; set; }
+        [BsonElement("msg")]
+        [JsonProperty("msg")]
+        public string Msg { get; set; }
+        [BsonElement("ent_id")]
+        [JsonProperty("ent_id")]
+        public int? EntId { get; set; }
+        [BsonElement("ent_pro_id")]
+        [JsonProperty("ent_pro_id")]
+        public int? EndProdId { get; set; }
+        [BsonElement("application_name")]
+        [JsonProperty("application_name")]
+        public string ApplicationName { get; set; }
+    }
+    public class Log
+    {
+        [BsonRepresentation(BsonType.ObjectId)]
+        public ObjectId Id { get; set; }
+        [BsonElement("line")]
+        [JsonProperty("line")]
+        public int Line { get; set; }
+        [BsonElement("application_name")]
+        [JsonProperty("application_name")]
+        public string ApplicationName { get; set; }
+        [BsonElement("data")]
+        [JsonProperty("data")]
+        public string Data { get; set; }
+        [BsonElement("date")]
+        [JsonProperty("date")]
+        public string Date { get; set; }
+        [BsonElement("date_time")]
+        [JsonProperty("date_time")]
+        public DateTime DateTime { get; set; }
+        [BsonElement("host")]
+        [JsonProperty("host")]
+        public string Host { get; set; }
+        [BsonElement("logname")]
+        [JsonProperty("logname")]
+        public string Logname { get; set; }
+        [BsonElement("user")]
+        [JsonProperty("user")]
+        public string User { get; set; }
+        [BsonElement("time")]
+        [JsonProperty("time")]
+        public string Time { get; set; }
+        [BsonElement("path")]
+        [JsonProperty("path")]
+        public string Path { get; set; }
+        [BsonElement("request")]
+        [JsonProperty("request")]
+        public string Request { get; set; }
+        [BsonElement("status")]
+        [JsonProperty("status")]
+        public string Status { get; set; }
+        [BsonElement("reponse_size")]
+        [JsonProperty("reponse_size")]
+        public string ResponseSize { get; set; }
+        [BsonElement("referrer")]
+        [JsonProperty("referrer")]
+        public string Referrer { get; set; }
+        [BsonElement("user_agent")]
+        [JsonProperty("user_agent")]
+        public string UserAgent { get; set; }
+        [BsonElement("process")]
+        [JsonProperty("process")]
+        public string Process { get; set; }
+    }
+
     public class MongoLog
     {
         public ObjectId Id { get; set; }
@@ -188,7 +285,7 @@ namespace MongoDb
             static void Main(string[] args)
             {
                 //MongoLog.Start();
-                MongoLog.StartFlLog();
+                //MongoLog.StartFlLog();
                 //MongoLog.Look();
                 //MongoLog.LookUp();
                 //MongoLog.LookUpJson();
@@ -200,9 +297,65 @@ namespace MongoDb
                 //MongoLog.BsonDocumentFetchDictionnary();
                 //MongoLog.BsonDocumentFetchDictionnaryWorkflow("GB00BF5DR632");
                 //MongoLog.BsonDocumentFetchDictionnaryStep("1909");
+                //MongoLog.InsertFromXml(@"C:\Users\gumbarm\Desktop\Amon\cr_log_2016.xml");
+                MongoLog.CallAspCoreApi();
                 Console.WriteLine("Hello");
                 Console.ReadLine();
             }
+        }
+
+        public static void CallAspCoreApi()
+        {
+            string url = @"http://localhost:8000/api/logs/Logs/";
+
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
+            httpWebRequest.Accept = "application/json; charset=utf-8";
+            httpWebRequest.ContentType = "text/json";
+            httpWebRequest.Method = "POST";
+            string jsonRequest = String.Format("{{\"application\":\"{0}\", " +
+                                               "\"startDate\":\"{1}\", " +
+                                               "\"endDate\":\"{2}\", " +
+                                               "\"entityID\":\"{3}\", " +
+                                               "\"userId\":\"{4}\", " +
+                                               "\"limit\":\"{5}\", " +
+                                               "\"page\":\"{6}\", " +
+                                               "\"pageSize\":\"{7}\"}}", 
+                                                "coreact_audits",
+                                                "01/01/2018 01:01:01",
+                                                "31/03/2018 01:01:01",
+                                                "",
+                                                "",
+                                                "2000",
+                                                "1",
+                                                "10");
+
+            using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+            {
+                streamWriter.Write(jsonRequest);
+                streamWriter.Flush();
+                streamWriter.Close();
+            }
+            try
+            {
+
+                using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
+                {
+                    var responseText = new StreamReader(httpResponse.GetResponseStream()).ReadToEnd();
+                    //var r = JsonConvert.DeserializeObject<List<JObject>>(responseText);
+                    JObject json = JObject.Parse(responseText);
+                    if (httpResponse.StatusCode.ToString() != "OK")
+                    {
+
+                        Console.WriteLine("status" + httpResponse.StatusCode.ToString());
+                    }
+
+                }
+            }
+            catch (Exception e)
+            {
+                Console.Write("Error " + e.Message);
+            }
+
         }
 
         public static async void BsonDocumentSave()
@@ -379,6 +532,48 @@ namespace MongoDb
                 this.SubCategory = subCategory;
                 this.SubCategory = subCategory;
                 this.Status = "primary";
+            }
+        }
+
+        public static async void InsertFromXml(string CrEventsPath = null, string tableName = "log")
+        {
+            var client = new MongoClient(@"mongodb://admin:admin@89.159.180.74:27017/test?ssl=false&authSource=admin");
+            var database = client.GetDatabase("log");
+            var collection = database.GetCollection<Log>(tableName);
+
+            XmlDocument doc = new XmlDocument();
+            Int64 counter = 0;
+            doc.Load(CrEventsPath);
+            Console.Write("Start: " + DateTime.Now.ToString());
+            foreach (XmlNode node in doc.DocumentElement.ChildNodes)
+            {
+                var logMsg = node["LOG_TYP"].InnerText + "; " + node["CAT"].InnerText + "; " + node["MSG"].InnerText;
+                try
+                {
+                    var dateTime = DateTime.Parse(node["DTE"].InnerText.Trim());
+                    //Console.WriteLine(logMsg);
+
+                    string url = @"http://localhost/api/cr/events/";
+
+                    //httpWebRequest.ContentType = "application/json; charset=utf-8";
+                    //httpWebRequest.Method = "POST";
+                    Console.WriteLine("date: " + node["DTE"].InnerText + " == " + dateTime.ToString());
+                    string json = "{\"process\":\"" + node["LOG_ID"].InnerText + "\",\"dateTime\":\"" + node["DTE"].InnerText + "\",\"data\":\"" + logMsg.Replace("\\", "\\\\") + "\"}";
+                    await collection.InsertOneAsync(new Log
+                    {
+                        ApplicationName = "coreact_events",
+                        Host = "testing",
+                        Logname = "coreact_events.log",
+                        DateTime = dateTime,
+                        Data = logMsg,
+                        Process = node["LOG_ID"].InnerText
+                    });
+                }
+                catch (Exception e)
+                {
+                    counter++;
+                    Console.Write("Error " + counter.ToString() + ":" + e.Message);
+                }
             }
         }
 

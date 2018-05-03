@@ -36,3 +36,5 @@ C:\Users\gumbarm\developments\MongoDb\MongoDb\obj\Debug\MongoDb.application
 C:\Users\gumbarm\developments\MongoDb\MongoDb\obj\Debug\MongoDb.csprojResolveAssemblyReference.cache
 C:\Users\gumbarm\developments\MongoDb\MongoDb\bin\Debug\Newtonsoft.Json.dll
 C:\Users\gumbarm\developments\MongoDb\MongoDb\bin\Debug\Newtonsoft.Json.xml
+C:\Users\gumbarm\developments\mongoDb\MongoDb\obj\Debug\MongoDb.csproj.CoreCompileInputs.cache
+C:\Users\gumbarm\developments\mongoDb\MongoDb\obj\Debug\MongoDb.csproj.CopyComplete
